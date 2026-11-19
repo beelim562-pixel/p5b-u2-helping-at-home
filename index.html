@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>P5B U2 Helping at Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      background-color: #6b4a36;
+    }
+    
+    .font-fredoka {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    .wooden-frame {
+      border: 12px solid #d4b48a;
+      box-shadow: inset 0 0 0 5px #8d5a32, 0 8px 24px rgba(60, 30, 10, 0.35);
+      border-radius: 20px;
+    }
+
+    .wooden-banner {
+      background: linear-gradient(180deg, #e8b07a 0%, #c47a48 100%);
+      border: 3px solid #8d5a32;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.35);
+    }
+
+    .speech-bubble {
+      position: relative;
+      background: #fffaf3;
+      border-radius: 20px;
+      border: 4px solid #c47a48;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -18px;
+      left: 40px;
+      border-width: 18px 18px 0;
+      border-style: solid;
+      border-color: #fffaf3 transparent;
+      display: block;
+      width: 0;
+    }
+    
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -23px;
+      left: 38px;
+      border-width: 20px 20px 0;
+      border-style: solid;
+      border-color: #c47a48 transparent;
+      display: block;
+      width: 0;
+    }
+
+    /* Living-room wall + wood floor */
+    .map-container {
+      background-color: #f6ead8;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(210, 176, 140, 0.22) 0 22px, transparent 22px 44px);
+      position: relative;
+      overflow: hidden;
+    }
+    .map-container::before {
+      content: '';
+      position: absolute;
+      top: 7%;
+      right: 5%;
+      width: 120px;
+      height: 86px;
+      background:
+        linear-gradient(#fff 0 0) 50% 50% / 4px 100% no-repeat,
+        linear-gradient(#fff 0 0) 50% 50% / 100% 4px no-repeat,
+        linear-gradient(#c9eaf8, #eef8ff);
+      border: 7px solid #e8c9a0;
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 3px #fff8ee, 0 10px 18px rgba(80, 40, 10, 0.15);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .map-container::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 36%;
+      background: repeating-linear-gradient(
+        90deg,
+        #e0b57a 0 26px,
+        #c9955c 26px 28px,
+        #d4a66a 28px 54px,
+        #b9844c 54px 56px
+      );
+      border-top: 12px solid #8d5a32;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .destination-node {
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+      z-index: 20;
+      background: #fffaf3 !important;
+    }
+
+    .destination-node:hover {
+      transform: scale(1.04);
+    }
+
+    /* Character Avatar Walking Animation */
+    .character-avatar {
+      position: absolute;
+      transition: left 0.1s linear, top 0.1s linear;
+      z-index: 30;
+      margin-left: -24px;
+      margin-top: -48px;
+    }
+
+    .is-walking {
+      animation: walk-bounce 0.25s infinite alternate ease-in-out;
+    }
+
+    @keyframes walk-bounce {
+      0% { transform: translateY(0) rotate(-4deg); }
+      100% { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    @keyframes bounce-gentle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .animate-bounce-gentle {
+      animation: bounce-gentle 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+      70% { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(234, 179, 8, 0); }
+      100% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+    }
+
+    .pulse-guide {
+      animation: pulse-ring 2s infinite;
+    }
+
+    .key-btn {
+      transition: all 0.1s ease-in-out;
+    }
+    .key-btn:active {
+      transform: translateY(2px);
+    }
+    .look-btn {
+      min-width: 64px;
+      min-height: 44px;
+    }
+    .scene-emoji { font-size: 4.2rem; line-height: 1.25; text-align: center; letter-spacing: 0.12em; }
+    .scene-table { width: min(88vw, 440px); height: auto; display: block; }
+  </style>
+</head>
+<body class="h-[100dvh] max-h-[100dvh] overflow-hidden flex items-stretch p-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+
+  <!-- MAIN CONTAINER WITH WOODEN FRAME — iPad landscape fill -->
+  <div class="relative w-full h-full bg-amber-100 wooden-frame flex flex-col justify-between overflow-hidden shadow-2xl">
+
+    <!-- FIREWORKS ANIMATION CANVAS OVERLAY -->
+    <canvas id="fireworks-canvas" class="absolute inset-0 pointer-events-none z-[60] w-full h-full hidden"></canvas>
+
+    <!-- TOP HEADER BAR -->
+    <header class="relative z-20 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-[#c17f59] via-[#e8c9a8] to-transparent">
+      <div class="wooden-banner px-5 py-1.5 rounded-full text-amber-100 font-fredoka text-base sm:text-2xl font-bold flex items-center gap-2">
+        <i class="fa-solid fa-house text-amber-300"></i>
+        <span id="level-banner-text">Level 1: Helping at Home</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 bg-amber-950/70 border border-amber-600/50 px-3 py-1 rounded-full text-amber-200 font-bold text-sm">
+          <i class="fa-solid fa-user-astronaut text-amber-400"></i>
+          <span id="header-student-name">Student</span>
+        </div>
+
+        <div class="flex items-center gap-2 bg-amber-950/80 border-2 border-yellow-500/80 px-3 py-1 rounded-full text-yellow-300 font-fredoka font-bold text-base sm:text-lg shadow-inner">
+          <i class="fa-solid fa-star text-yellow-400 text-xl"></i>
+          <span id="star-count">0</span> / <span id="total-questions">6</span>
+        </div>
+
+        <button id="toggle-audio-btn" onclick="toggleAudio()" class="w-10 h-10 bg-amber-700 hover:bg-amber-600 border-2 border-amber-400 text-amber-100 rounded-full flex items-center justify-center text-lg shadow-md transition">
+          <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- SCREEN 1: LOGIN NAME SCREEN -->
+    <div id="screen-name" class="absolute inset-0 z-40 bg-amber-900/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+      <div class="bg-amber-100 border-8 border-amber-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center">
+        <div class="w-24 h-24 bg-amber-200 rounded-full border-4 border-amber-600 flex items-center justify-center text-5xl mb-4 shadow-inner">
+          🐶
+        </div>
+        <h1 class="font-fredoka text-3xl sm:text-4xl text-amber-950 mb-2">Welcome!</h1>
+        <p class="text-amber-800 text-lg font-bold mb-6 flex items-center justify-center gap-2">
+          <span>What is your name?</span>
+          <button onclick="speakText('What is your name?')" class="text-amber-600 hover:text-amber-800 text-xl"><i class="fa-solid fa-volume-high"></i></button>
+        </p>
+
+        <input type="text" id="input-student-name" placeholder="Type your name here..." 
+          class="w-full text-center text-2xl font-bold font-fredoka text-amber-900 bg-amber-50 border-4 border-amber-400 rounded-2xl p-3 mb-6 focus:outline-none focus:border-amber-600 shadow-inner">
+
+        <button onclick="submitName()" class="w-full bg-gradient-to-b from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 border-b-4 border-green-900 text-white font-fredoka text-2xl py-3 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-3">
+          <span>Start Helping</span>
+          <i class="fa-solid fa-circle-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: DIFFICULTY SELECT SCREEN -->
+    <div id="screen-difficulty" class="absolute inset-0 z-40 bg-amber-900/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center hidden">
+      <div class="bg-amber-100 border-8 border-amber-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl">
+        <h2 class="font-fredoka text-2xl sm:text-3xl text-amber-950 mb-1" id="difficulty-welcome">Hello, Explorer!</h2>
+        <p class="text-amber-800 text-lg font-bold mb-6">Choose your level:</p>
+
+        <div class="space-y-4">
+          <button onclick="selectLevel(1)" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 border-b-4 border-green-900 text-white p-4 rounded-2xl shadow-md hover:brightness-105 transition flex items-center justify-between text-left">
+            <div class="flex items-center gap-4">
+              <span class="text-4xl bg-emerald-700/50 p-2 rounded-xl">🖼️🔤</span>
+              <div>
+                <div class="font-fredoka text-xl font-bold">Level 1: Easy (低組)</div>
+                <div class="text-xs sm:text-sm text-emerald-100 font-semibold">Sentence Hint Icon + 2 Choice Cards (Image + Word)</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-2xl opacity-75"></i>
+          </button>
+
+          <button onclick="selectLevel(2)" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 border-b-4 border-orange-900 text-white p-4 rounded-2xl shadow-md hover:brightness-105 transition flex items-center justify-between text-left">
+            <div class="flex items-center gap-4">
+              <span class="text-4xl bg-amber-700/50 p-2 rounded-xl">🖼️🔤✨</span>
+              <div>
+                <div class="font-fredoka text-xl font-bold">Level 2: Medium (中組)</div>
+                <div class="text-xs sm:text-sm text-amber-100 font-semibold">Standard Sentence + 3 Choice Cards (Image + Word)</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-2xl opacity-75"></i>
+          </button>
+
+          <button onclick="selectLevel(3)" class="w-full bg-gradient-to-r from-purple-600 to-indigo-700 border-b-4 border-indigo-950 text-white p-4 rounded-2xl shadow-md hover:brightness-105 transition flex items-center justify-between text-left">
+            <div class="flex items-center gap-4">
+              <span class="text-4xl bg-purple-800/50 p-2 rounded-xl">⌨️💡</span>
+              <div>
+                <div class="font-fredoka text-xl font-bold">Level 3: Hard (高組 - 打字)</div>
+                <div class="text-xs sm:text-sm text-purple-100 font-semibold">3 Option Cards + Typing Mode with Letters</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-2xl opacity-75"></i>
+          </button>
+
+          <button onclick="selectLevel(4)" class="w-full bg-gradient-to-r from-rose-600 to-pink-700 border-b-4 border-rose-950 text-white p-4 rounded-2xl shadow-md hover:brightness-105 transition flex items-center justify-between text-left">
+            <div class="flex items-center gap-4">
+              <span class="text-4xl bg-rose-800/50 p-2 rounded-xl">⌨️🔗</span>
+              <div>
+                <div class="font-fredoka text-xl font-bold">Level 4: Challenge (高組 - so I)</div>
+                <div class="text-xs sm:text-sm text-rose-100 font-semibold">Reason sentence + Typing Mode with Letters</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-2xl opacity-75"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN GAME CANVAS & MAP OVERLAY -->
+    <main id="map-bounds" class="relative flex-1 map-container flex flex-col justify-between p-4 sm:p-6">
+
+      <!-- Dynamic Waypoint Path Canvas -->
+      <svg id="map-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 1000 600" preserveAspectRatio="none">
+        <defs>
+          <filter id="path-shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="2" flood-color="#3d2208" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        
+        <!-- Dynamic Routes Group rendered via JS -->
+        <g id="routes-group"></g>
+      </svg>
+
+      <!-- TOP QUESTION PROMPT -->
+      <div class="relative z-20 flex flex-col items-center gap-2 max-w-3xl mx-auto w-full">
+        <div class="flex items-start gap-3 w-full">
+          <div class="relative flex-shrink-0">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-200 border-4 border-amber-800 rounded-full flex items-center justify-center text-3xl sm:text-4xl shadow-lg animate-bounce-gentle" id="animal-avatar">
+              🐶
+            </div>
+          </div>
+
+          <div class="speech-bubble flex-1 p-3 sm:p-4 text-amber-950 font-bold text-base sm:text-xl flex items-center justify-between gap-2 min-h-[80px]">
+            <div class="flex items-center gap-2 flex-wrap" id="question-prompt-container">
+              <span id="question-prompt-text">How do you help at home?</span>
+              <button id="look-btn" type="button" onclick="openScene()" class="look-btn inline-flex items-center gap-1 bg-sky-300 hover:bg-sky-400 border-2 border-sky-700 text-sky-950 font-fredoka text-sm px-2.5 py-1 rounded-xl shadow transition active:scale-95 cursor-pointer" title="Look at the picture">
+                🖼️ <span class="text-xs sm:text-sm font-bold">Look</span>
+              </button>
+              <button id="hint-btn" onclick="toggleHint()" class="inline-flex items-center gap-1 bg-yellow-300 hover:bg-yellow-400 border-2 border-amber-600 text-amber-950 font-fredoka text-sm px-2.5 py-1 rounded-xl shadow transition active:scale-95 cursor-pointer hidden" title="Show Hint">
+                💡 <span class="text-xs sm:text-sm font-bold">Hint</span>
+              </button>
+              <span id="action-hint-badge" class="inline-flex items-center gap-1 bg-amber-100 border-2 border-amber-400 px-2 py-1 rounded-xl text-2xl shadow-sm animate-pulse hidden">
+                🎬
+              </span>
+            </div>
+            <button onclick="repeatQuestion()" class="w-10 h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center text-lg flex-shrink-0 shadow transition active:scale-90 ml-2" title="Read Aloud">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE OPTIONS CONTAINER -->
+      <div id="choices-container" class="relative z-20 grid grid-cols-3 gap-3 sm:gap-6 my-auto max-w-4xl mx-auto w-full">
+        
+        <!-- Node 0 -->
+        <div id="node-0" onclick="handleChoice(0)" class="destination-node cursor-pointer bg-amber-50 border-4 border-amber-800 rounded-2xl p-2 sm:p-4 text-center shadow-xl flex flex-col items-center justify-center min-h-[120px] sm:min-h-[160px] pulse-guide relative group">
+          <div class="absolute top-2 right-2 text-amber-600/70 group-hover:text-amber-800 text-xs sm:text-sm">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="node-icon text-4xl sm:text-6xl mb-1 sm:mb-2">🍽️</div>
+          <div class="node-label font-fredoka font-bold text-amber-900 text-base sm:text-2xl tracking-wide">wash the dishes</div>
+        </div>
+
+        <!-- Node 1 -->
+        <div id="node-1" onclick="handleChoice(1)" class="destination-node cursor-pointer bg-amber-50 border-4 border-amber-800 rounded-2xl p-2 sm:p-4 text-center shadow-xl flex flex-col items-center justify-center min-h-[120px] sm:min-h-[160px] pulse-guide relative group">
+          <div class="absolute top-2 right-2 text-amber-600/70 group-hover:text-amber-800 text-xs sm:text-sm">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="node-icon text-4xl sm:text-6xl mb-1 sm:mb-2">🧹</div>
+          <div class="node-label font-fredoka font-bold text-amber-900 text-base sm:text-2xl tracking-wide">sweep the floor</div>
+        </div>
+
+        <!-- Node 2 -->
+        <div id="node-2" onclick="handleChoice(2)" class="destination-node cursor-pointer bg-amber-50 border-4 border-amber-800 rounded-2xl p-2 sm:p-4 text-center shadow-xl flex flex-col items-center justify-center min-h-[120px] sm:min-h-[160px] pulse-guide relative group">
+          <div class="absolute top-2 right-2 text-amber-600/70 group-hover:text-amber-800 text-xs sm:text-sm">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="node-icon text-4xl sm:text-6xl mb-1 sm:mb-2">🛏️</div>
+          <div class="node-label font-fredoka font-bold text-amber-900 text-base sm:text-2xl tracking-wide">make the bed</div>
+        </div>
+
+      </div>
+
+      <!-- LEVEL 3 TYPING MODE CONTAINER (COMPACT BOTTOM BAR OVERLAY) -->
+      <div id="typing-container" class="relative z-40 mt-auto mb-1 max-w-2xl mx-auto w-full bg-amber-950/95 backdrop-blur-md border-4 border-amber-600 rounded-2xl p-2 sm:p-3 shadow-2xl flex flex-col items-center hidden">
+        
+        <!-- VISUAL LETTER SLOTS (BOXES / UNDERLINES FOR LEVEL 3) -->
+        <div class="text-amber-300 font-fredoka text-xs sm:text-sm mb-1 flex items-center gap-1 font-semibold">
+          <i class="fa-solid fa-font"></i>
+          <span>Letters count hint:</span>
+        </div>
+        <div id="letter-slots-container" class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-2 w-full px-2 min-h-[46px]">
+          <!-- Rendered dynamically per question -->
+        </div>
+
+        <!-- Text Input & Submit Button -->
+        <div class="flex items-center gap-2 w-full mb-2">
+          <input type="text" id="type-answer-input" placeholder="Type answer here..." inputmode="none"
+            class="flex-1 text-center font-fredoka font-bold text-lg sm:text-xl p-2 border-2 border-amber-500 rounded-xl bg-amber-50 text-amber-950 focus:outline-none focus:border-amber-300 shadow-inner">
+          <button onclick="checkTypedAnswer()" class="bg-emerald-600 hover:bg-emerald-500 border-b-4 border-emerald-900 text-white font-fredoka text-base sm:text-lg font-bold px-4 py-2 rounded-xl shadow-md transition active:scale-95 flex items-center gap-1">
+            <span>Go</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Interactive Soft-Keyboard Helper for Easy Touch Typing (Lowercase) -->
+        <div id="on-screen-keyboard" class="flex flex-wrap justify-center gap-1.5 max-w-xl w-full">
+          <!-- Lowercase letter keys generated dynamically based on options -->
+        </div>
+      </div>
+
+      <!-- START GATE -->
+      <div class="relative z-10 flex justify-center items-end h-8">
+        <div class="wooden-banner px-5 py-0.5 rounded-t-xl border-t-2 border-x-2 border-amber-950 font-fredoka text-amber-200 font-bold text-xs sm:text-sm tracking-widest flex items-center gap-2 shadow-md">
+          <i class="fa-solid fa-door-open text-amber-400"></i>
+          Start Gate
+        </div>
+      </div>
+
+      <!-- PLAYER SPRITE (MOVABLE CHARACTER) -->
+      <div id="player-sprite" class="character-avatar flex flex-col items-center justify-center">
+        <div id="player-avatar-icon" class="w-12 h-12 bg-amber-300 border-2 border-amber-900 rounded-full flex items-center justify-center text-2xl shadow-xl">
+          🐶
+        </div>
+        <div id="player-badge-name" class="bg-amber-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 whitespace-nowrap shadow">
+          Student
+        </div>
+      </div>
+
+    </main>
+
+    <!-- SCREEN 3: END SUMMARY CERTIFICATE & PRIZE -->
+    <div id="screen-summary" class="absolute inset-0 z-50 bg-amber-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center hidden">
+      <div class="bg-amber-50 border-8 border-yellow-500 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl flex flex-col items-center relative overflow-hidden animate-bounce-gentle">
+        
+        <div class="absolute -top-12 -right-12 bg-yellow-400 text-amber-950 font-fredoka font-bold py-8 px-12 rotate-45 shadow-md">
+          Champion!
+        </div>
+
+        <div class="bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-amber-950 font-fredoka text-lg sm:text-2xl font-bold px-6 py-2 rounded-full uppercase tracking-wider mb-2 shadow-md flex items-center gap-2">
+          <i class="fa-solid fa-trophy text-amber-900"></i>
+          <span>All 3 Levels Completed!</span>
+        </div>
+
+        <div class="text-7xl my-1 animate-bounce">🏆🎁✨</div>
+        <h2 class="font-fredoka text-3xl sm:text-4xl text-amber-950 font-bold mb-1">Congratulations!</h2>
+        <p class="text-amber-800 text-xl font-extrabold mb-2" id="certificate-name">Explorer Name</p>
+
+        <!-- Accuracy Percentage Card -->
+        <div class="bg-amber-100 border-4 border-amber-400 rounded-2xl p-4 w-full mb-3 shadow-inner text-amber-950">
+          <div class="text-3xl font-fredoka text-emerald-700 font-extrabold mb-1" id="certificate-percentage">
+            Score: 100% Correct!
+          </div>
+          <p id="certificate-msg" class="text-amber-900 text-base font-bold">You did an amazing job completing all levels!</p>
+        </div>
+
+        <!-- PRIZE DISPLAY REWARD BOX -->
+        <div class="bg-gradient-to-r from-yellow-200 via-amber-100 to-yellow-200 border-4 border-yellow-500 rounded-2xl p-3 w-full mb-4 shadow-md flex items-center justify-center gap-3">
+          <span class="text-4xl">🏅</span>
+          <div class="text-left">
+            <div class="text-xs uppercase font-extrabold text-amber-800 tracking-wider">Your Prize Awarded</div>
+            <div id="prize-title" class="font-fredoka font-bold text-amber-950 text-lg sm:text-xl">
+              Home Helper Gold Trophy 🏆
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 w-full">
+          <button onclick="restartGame()" class="flex-1 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 border-b-4 border-blue-900 text-white font-fredoka text-2xl py-3 rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Play Again</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 6: LEVEL 1 & 2 PROMOTION POPUP (80%+ SCORE) -->
+    <div id="screen-promotion" class="absolute inset-0 z-50 bg-amber-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center hidden">
+      <div class="bg-amber-50 border-8 border-yellow-500 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl flex flex-col items-center animate-bounce-gentle relative overflow-hidden">
+        
+        <div class="bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-amber-950 font-fredoka text-xl sm:text-2xl font-bold px-6 py-2 rounded-full uppercase tracking-wider mb-3 shadow-md flex items-center gap-2">
+          <i class="fa-solid fa-ranking-star text-amber-900"></i>
+          <span id="promo-banner-title">Promoted! 升級 Level 2</span>
+        </div>
+
+        <div class="text-7xl my-2 animate-bounce">🚀🎆</div>
+
+        <h3 class="font-fredoka text-3xl sm:text-4xl text-amber-950 font-bold mb-1">
+          Super Explorer!
+        </h3>
+        <p class="text-amber-800 text-lg font-bold mb-2" id="promo-student-name">Student Name</p>
+
+        <div class="bg-amber-100 border-4 border-amber-400 rounded-2xl p-4 w-full my-3 shadow-inner">
+          <div class="text-2xl font-fredoka text-green-700 font-bold mb-1" id="promo-score-text">
+            Score: 10/12 (83%)
+          </div>
+          <p class="text-amber-900 text-base sm:text-lg font-bold" id="promo-desc-text">
+            You achieved over 80% accuracy! You are automatically promoted to <span class="text-amber-700 font-extrabold underline">Level 2</span>!
+          </p>
+        </div>
+
+        <button onclick="startPromotedLevel()" class="w-full bg-gradient-to-b from-emerald-500 to-green-700 hover:from-emerald-400 hover:to-green-600 border-b-4 border-green-900 text-white font-fredoka text-2xl py-3 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-3">
+          <span id="promo-btn-text">Start Level 2 Now</span>
+          <i class="fa-solid fa-circle-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: UPGRADE NEWS POPUP -->
+    <div id="screen-upgrade-news" class="absolute inset-0 z-50 bg-amber-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center hidden">
+      <div class="bg-amber-50 border-8 border-amber-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center animate-bounce-gentle relative overflow-hidden">
+        
+        <!-- Newspaper Header Badge -->
+        <div class="bg-red-600 text-white font-fredoka text-lg sm:text-xl font-bold px-6 py-1 rounded-full uppercase tracking-wider mb-3 shadow-md flex items-center gap-2">
+          <i class="fa-solid fa-newspaper"></i>
+          <span>Breaking News! 升級新聞</span>
+        </div>
+
+        <div class="text-6xl my-2">📰⭐</div>
+
+        <h3 class="font-fredoka text-2xl sm:text-3xl text-amber-950 font-bold mb-1" id="news-title">
+          Level Up!
+        </h3>
+
+        <div class="bg-amber-100 border-2 border-amber-300 rounded-2xl p-4 w-full my-3 shadow-inner">
+          <p class="text-amber-900 font-bold text-lg sm:text-xl mb-1" id="news-body-name">
+            Great job, Explorer!
+          </p>
+          <p class="text-amber-800 text-base font-semibold mb-2" id="news-body-desc">
+            You answered 4 questions correctly!
+          </p>
+          <div class="inline-block bg-yellow-400 text-amber-950 font-fredoka font-bold text-lg px-4 py-1.5 rounded-xl border border-yellow-600 shadow" id="news-badge-title">
+            Home Helper Badge 🎖️
+          </div>
+        </div>
+
+        <button onclick="closeUpgradeNews()" class="w-full bg-gradient-to-b from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 border-b-4 border-green-900 text-white font-fredoka text-2xl py-3 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+          <span>Continue Exploring</span>
+          <i class="fa-solid fa-circle-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- SCENE PICTURE POPUP (L1–L3) -->
+    <div id="screen-scene" class="absolute inset-0 z-[55] bg-amber-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-3 hidden" onclick="if(event.target===this)closeScene()">
+      <div class="bg-[#fffaf3] border-8 border-amber-700 rounded-3xl p-4 sm:p-5 max-w-xl w-full shadow-2xl flex flex-col items-center">
+        <p class="font-fredoka font-bold text-amber-900 text-xl mb-2">Look</p>
+        <div id="scene-picture" class="w-full flex justify-center"></div>
+        <button type="button" onclick="closeScene()" class="mt-4 w-full min-h-[64px] bg-gradient-to-b from-green-500 to-green-700 border-b-4 border-green-900 text-white font-fredoka text-2xl py-3 rounded-2xl">OK</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: QUESTION FEEDBACK POPUP -->
+    <div id="screen-feedback" class="absolute inset-0 z-50 bg-amber-950/85 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center hidden">
+      <div class="bg-amber-100 border-8 border-amber-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center animate-bounce-gentle">
+        <div class="wooden-banner px-6 py-1.5 rounded-full text-amber-100 font-fredoka text-xl sm:text-2xl font-bold mb-4 shadow-md">
+          <span id="feedback-praise">Great job!</span> 🌟
+        </div>
+
+        <!-- Target Word Card with Icon -->
+        <div class="bg-gradient-to-b from-amber-50 to-amber-200 border-4 border-amber-600 rounded-2xl p-6 w-full shadow-inner flex flex-col items-center mb-6">
+          <div id="feedback-emoji" class="text-6xl sm:text-7xl mb-3 drop-shadow-md transform hover:scale-110 transition">🎬</div>
+          <div class="flex items-center gap-3">
+            <span id="feedback-word" class="font-fredoka text-3xl sm:text-4xl text-amber-950 font-bold tracking-wider">cinema</span>
+            <button onclick="speakText(document.getElementById('feedback-word').innerText)" class="w-10 h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center text-lg shadow transition active:scale-90" title="Listen target word">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="nextQuestion()" class="w-full bg-gradient-to-b from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 border-b-4 border-green-900 text-white font-fredoka text-2xl py-3 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+          <span>Next</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 12 SEN Vocabulary Locations with custom prompts & action visual hints
+    const LOCATION_DATA = {
+      wash_dishes: { name: "wash the dishes", emoji: "🍽️", actionEmoji: "🧽🍽️", prompt: "How do you help at home?", promptB: "The dishes are dirty so I..." },
+      sweep_floor: { name: "sweep the floor", emoji: "🧹", actionEmoji: "🧹🏠", prompt: "How do you help at home?", promptB: "The floor is dirty so I..." },
+      make_bed: { name: "make the bed", emoji: "🛏️", actionEmoji: "🛏️✨", prompt: "How do you help at home?", promptB: "The bed is messy so I..." },
+      water_plants: { name: "water the plants", emoji: "🪴", actionEmoji: "💧🪴", prompt: "How do you help at home?", promptB: "The plants are dry so I..." },
+      set_table: { name: "set the table", emoji: "🍴", actionEmoji: "🍽️🪑", prompt: "How do you help at home?", promptB: "It is dinner time so I..." },
+      tidy_living: { name: "tidy the living room", emoji: "🛋️", actionEmoji: "🧸🛋️", prompt: "How do you help at home?", promptB: "The living room is messy so I..." }
+    };
+
+    const SCENE_EMOJI = {
+      "wash the dishes": "🍽️🍽️🍽️<br>🥣🧽",
+      "sweep the floor": "🧻🍂🗑️<br>🧹",
+      "make the bed": "🛏️💤<br>👕🧦",
+      "water the plants": "🪴🥀<br>💧",
+      "set the table": "",
+      "tidy the living room": "🛋️🧸<br>👕🧦"
+    };
+
+    const TABLE_SVG = `<svg class="scene-table" viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="140" cy="168" rx="90" ry="8" fill="#000" opacity="0.12"/>
+      <rect x="36" y="88" width="22" height="70" rx="4" fill="#8d5a32"/>
+      <rect x="222" y="88" width="22" height="70" rx="4" fill="#8d5a32"/>
+      <rect x="28" y="58" width="224" height="42" rx="10" fill="#c47a48"/>
+      <rect x="34" y="64" width="212" height="12" rx="6" fill="#e8b07a"/>
+      <rect x="18" y="78" width="18" height="72" rx="4" fill="#6d4428"/>
+      <rect x="244" y="78" width="18" height="72" rx="4" fill="#6d4428"/>
+      <rect x="8" y="42" width="36" height="44" rx="6" fill="#d4a574"/>
+      <rect x="236" y="42" width="36" height="44" rx="6" fill="#d4a574"/>
+      <ellipse cx="140" cy="78" rx="28" ry="10" fill="#fff8ee" stroke="#c47a48" stroke-width="3"/>
+    </svg>`;
+
+    const ANIMALS = ["🐶", "🐱", "🐰", "🐻", "🦊", "🐼"];
+
+    // Game Variables
+    let studentName = "Student";
+    let selectedLevel = 1;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let audioEnabled = true;
+    let questionList = [];
+    let isMoving = false;
+    let currentChoices = [];
+    let feedbackTimer = null;
+    let lastCorrectIndex = -1;
+    let lastNewsScore = 0;
+    let currentTargetWord = "";
+
+    /* Web Audio API Sound Generator for Fireworks & Victory Chimes */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playFireworkSound() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const bufferSize = ctx.sampleRate * 0.25;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.04));
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(900, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.25);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start();
+      } catch (e) {}
+    }
+
+    function playVictoryChime() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
+          gain.gain.setValueAtTime(0, ctx.currentTime + idx * 0.12);
+          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + idx * 0.12 + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.6);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.12);
+          osc.stop(ctx.currentTime + idx * 0.12 + 0.6);
+        });
+      } catch (e) {}
+    }
+
+    /* Fireworks Canvas Engine */
+    let fireworksActive = false;
+    let fireworksAnimationId = null;
+    let particles = [];
+
+    function createFireworkExplosion(x, y) {
+      const particleCount = 45 + Math.floor(Math.random() * 25);
+      const colors = ['#ff4365', '#00d9c0', '#ffdd53', '#ffffff', '#a855f7', '#3b82f6', '#f97316'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      for (let i = 0; i < particleCount; i++) {
+        const angle = (Math.PI * 2 / particleCount) * i + (Math.random() * 0.2);
+        const speed = 2 + Math.random() * 5.5;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          decay: 0.015 + Math.random() * 0.02,
+          color: color,
+          radius: 3 + Math.random() * 3
+        });
+      }
+      playFireworkSound();
+    }
+
+    function triggerFireworks() {
+      const canvas = document.getElementById('fireworks-canvas');
+      if (!canvas) return;
+      canvas.classList.remove('hidden');
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      const ctx = canvas.getContext('2d');
+
+      fireworksActive = true;
+      particles = [];
+
+      let launchTimer = 0;
+
+      function loop() {
+        if (!fireworksActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        launchTimer++;
+        if (launchTimer % 18 === 0) {
+          const rx = canvas.width * (0.2 + Math.random() * 0.6);
+          const ry = canvas.height * (0.15 + Math.random() * 0.4);
+          createFireworkExplosion(rx, ry);
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.08; // gravity
+          p.alpha -= p.decay;
+
+          if (p.alpha <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        fireworksAnimationId = requestAnimationFrame(loop);
+      }
+
+      loop();
+    }
+
+    function stopFireworks() {
+      fireworksActive = false;
+      if (fireworksAnimationId) cancelAnimationFrame(fireworksAnimationId);
+      const canvas = document.getElementById('fireworks-canvas');
+      if (canvas) {
+        canvas.classList.add('hidden');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      particles = [];
+    }
+
+    function drawMapRoutes() {
+      const svg = document.getElementById('map-svg');
+      const routesGroup = document.getElementById('routes-group');
+      const mapBounds = document.getElementById('map-bounds');
+      if (!routesGroup || !svg || !mapBounds) return;
+
+      routesGroup.innerHTML = '';
+      const mapRect = mapBounds.getBoundingClientRect();
+
+      currentChoices.forEach((choice, index) => {
+        const nodeEl = document.getElementById(`node-${index}`);
+        if (!nodeEl || nodeEl.classList.contains('hidden')) return;
+
+        const nodeRect = nodeEl.getBoundingClientRect();
+        const targetX = ((nodeRect.left + nodeRect.width / 2 - mapRect.left) / mapRect.width) * 1000;
+        const targetY = ((nodeRect.bottom - mapRect.top - 12) / mapRect.height) * 600;
+
+        const startX = 500;
+        const startY = 530;
+
+        // Curve control points
+        const cp1x = startX + (targetX - startX) * 0.25;
+        const cp1y = startY - (startY - targetY) * 0.4;
+        const cp2x = startX + (targetX - startX) * 0.75;
+        const cp2y = startY - (startY - targetY) * 0.8;
+
+        const d = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${targetX} ${targetY}`;
+
+        // Road Shadow
+        const pathShadow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathShadow.setAttribute("d", d);
+        pathShadow.setAttribute("stroke", "#5c3413");
+        pathShadow.setAttribute("stroke-width", "28");
+        pathShadow.setAttribute("fill", "none");
+        pathShadow.setAttribute("stroke-linecap", "round");
+        pathShadow.setAttribute("filter", "url(#path-shadow)");
+
+        // Main Road
+        const pathMain = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathMain.setAttribute("d", d);
+        pathMain.setAttribute("stroke", "#e6c88b");
+        pathMain.setAttribute("stroke-width", "20");
+        pathMain.setAttribute("fill", "none");
+        pathMain.setAttribute("stroke-linecap", "round");
+
+        // Center Dashed Line
+        const pathDash = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathDash.setAttribute("d", d);
+        pathDash.setAttribute("stroke", "#f7e6c4");
+        pathDash.setAttribute("stroke-width", "4");
+        pathDash.setAttribute("stroke-dasharray", "8 6");
+        pathDash.setAttribute("fill", "none");
+        pathDash.setAttribute("stroke-linecap", "round");
+
+        routesGroup.appendChild(pathShadow);
+        routesGroup.appendChild(pathMain);
+        routesGroup.appendChild(pathDash);
+      });
+    }
+
+    function generateQuestions() {
+      const keys = Object.keys(LOCATION_DATA);
+      questionList = keys.map(key => LOCATION_DATA[key]);
+      questionList.sort(() => Math.random() - 0.5);
+    }
+
+    function isTypingLevel() { return selectedLevel === 3 || selectedLevel === 4; }
+
+    function currentPrompt(q) {
+      return selectedLevel === 4 ? q.promptB : q.prompt;
+    }
+
+    function praiseSentence(q) {
+      if (selectedLevel === 4) {
+        return q.promptB.replace('...', '').trim() + ' ' + q.name + '.';
+      }
+      return 'I ' + q.name + '.';
+    }
+
+    function speakText(text) {
+      if (!audioEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.85;
+      utterance.pitch = 1.1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const icon = document.getElementById('audio-icon');
+      if (audioEnabled) {
+        icon.className = "fa-solid fa-volume-high";
+      } else {
+        icon.className = "fa-solid fa-volume-xmark";
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
+    }
+
+    function repeatQuestion() {
+      if (questionList[currentQuestionIndex]) {
+        speakText(currentPrompt(questionList[currentQuestionIndex]));
+      }
+    }
+
+    function toggleHint() {
+      const hintBadge = document.getElementById('action-hint-badge');
+      if (!hintBadge) return;
+      if (hintBadge.classList.contains('hidden')) {
+        hintBadge.classList.remove('hidden');
+        speakText("Hint!");
+      } else {
+        hintBadge.classList.add('hidden');
+      }
+    }
+
+    function openScene() {
+      const q = questionList[currentQuestionIndex];
+      if (!q) return;
+      const box = document.getElementById('scene-picture');
+      box.innerHTML = q.name === 'set the table' ? TABLE_SVG : `<div class="scene-emoji">${SCENE_EMOJI[q.name] || ''}</div>`;
+      document.getElementById('screen-scene').classList.remove('hidden');
+      speakText('Look!');
+    }
+
+    function closeScene() {
+      document.getElementById('screen-scene').classList.add('hidden');
+    }
+
+    function submitName() {
+      const input = document.getElementById('input-student-name');
+      studentName = input.value.trim() || "Student";
+      document.getElementById('header-student-name').innerText = studentName;
+      document.getElementById('difficulty-welcome').innerText = `Hello, ${studentName}!`;
+      const playerBadge = document.getElementById('player-badge-name');
+      if (playerBadge) playerBadge.innerText = studentName;
+      document.getElementById('screen-name').classList.add('hidden');
+      document.getElementById('screen-difficulty').classList.remove('hidden');
+      speakText(`Hello ${studentName}! Choose your level.`);
+    }
+
+    function selectLevel(level) {
+      selectedLevel = level;
+      const banner = document.getElementById('level-banner-text');
+      if (level === 1) banner.innerText = "Level 1: Easy (低組)";
+      else if (level === 2) banner.innerText = "Level 2: Medium (中組)";
+      else if (level === 3) banner.innerText = "Level 3: Hard (高組)";
+      else banner.innerText = "Level 4: Challenge (so I)";
+
+      document.getElementById('screen-difficulty').classList.add('hidden');
+      generateQuestions();
+      currentQuestionIndex = 0;
+      score = 0;
+      lastCorrectIndex = -1;
+      lastNewsScore = 0;
+      document.getElementById('star-count').innerText = "0";
+      document.getElementById('total-questions').innerText = questionList.length;
+      loadQuestion();
+    }
+
+    function renderOnScreenKeyboard(optionsList, targetQ) {
+      const keyboardContainer = document.getElementById('on-screen-keyboard');
+      keyboardContainer.innerHTML = '';
+
+      const lettersSet = new Set();
+      
+      // Always guarantee target word letters exist on keyboard
+      const cleanTargetStr = targetQ.name.toLowerCase().replace(/[^a-z]/g, '');
+      for (let char of cleanTargetStr) {
+        lettersSet.add(char);
+      }
+
+      // Add distractor letters from options
+      optionsList.forEach(opt => {
+        const cleanStr = opt.name.toLowerCase().replace(/[^a-z]/g, '');
+        for (let char of cleanStr) {
+          lettersSet.add(char);
+        }
+      });
+
+      const letterArray = Array.from(lettersSet).sort(() => Math.random() - 0.5);
+
+      letterArray.forEach(letter => {
+        const keyBtn = document.createElement('button');
+        keyBtn.className = "key-btn bg-amber-100 hover:bg-amber-200 border-2 border-amber-700 text-amber-950 font-fredoka font-bold text-lg sm:text-xl w-9 h-9 sm:w-11 sm:h-11 rounded-xl shadow active:translate-y-0.5 flex items-center justify-center";
+        keyBtn.innerText = letter; // Lowercase letter display
+        keyBtn.onclick = function() {
+          handleVirtualKeyPress(letter);
+          speakText(letter);
+        };
+        keyboardContainer.appendChild(keyBtn);
+      });
+
+      // Space bar (only show if multi-word answer)
+      if (targetQ.name.includes(' ')) {
+        const spaceBtn = document.createElement('button');
+        spaceBtn.className = "key-btn bg-amber-200 hover:bg-amber-300 border-2 border-amber-700 text-amber-950 font-fredoka font-bold text-xs sm:text-sm px-3 h-9 sm:h-11 rounded-xl shadow active:translate-y-0.5 flex items-center justify-center";
+        spaceBtn.innerText = "space";
+        spaceBtn.onclick = function() {
+          handleVirtualKeyPress(" ");
+        };
+        keyboardContainer.appendChild(spaceBtn);
+      }
+
+      const backspaceBtn = document.createElement('button');
+      backspaceBtn.className = "key-btn bg-red-400 hover:bg-red-500 border-2 border-red-800 text-white font-fredoka font-bold text-lg sm:text-xl w-9 h-9 sm:w-11 sm:h-11 rounded-xl shadow active:translate-y-0.5 flex items-center justify-center";
+      backspaceBtn.innerHTML = '<i class="fa-solid fa-backspace"></i>';
+      backspaceBtn.onclick = function() {
+        handleVirtualKeyPress("BACKSPACE");
+      };
+      keyboardContainer.appendChild(backspaceBtn);
+    }
+
+    function handleVirtualKeyPress(key) {
+      const inputEl = document.getElementById('type-answer-input');
+      let currentVal = inputEl.value;
+
+      if (key === "BACKSPACE") {
+        currentVal = currentVal.slice(0, -1);
+      } else if (key === " ") {
+        // Avoid consecutive spaces
+        if (!currentVal.endsWith(' ') && currentVal.length > 0) {
+          currentVal += ' ';
+        }
+      } else {
+        // If typing a letter and the target is multi-word, auto insert space if needed
+        const words = currentTargetWord.split(' ');
+        if (words.length > 1) {
+          const currentWords = currentVal.trim().split(' ');
+          const currentWordIdx = currentWords.length - 1;
+          if (currentWords[currentWordIdx] && words[currentWordIdx] && currentWords[currentWordIdx].length === words[currentWordIdx].length && !currentVal.endsWith(' ')) {
+            currentVal += ' ';
+          }
+        }
+        currentVal += key;
+      }
+
+      inputEl.value = currentVal;
+      updateLetterSlots(currentVal);
+      inputEl.focus();
+    }
+
+    function initLetterSlots(word) {
+      currentTargetWord = word.toLowerCase();
+      const container = document.getElementById('letter-slots-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const words = currentTargetWord.split(' ');
+      let charGlobalIdx = 0;
+
+      words.forEach((w, wIdx) => {
+        const wordGroup = document.createElement('div');
+        wordGroup.className = "flex items-center gap-1.5 sm:gap-2";
+
+        for (let i = 0; i < w.length; i++) {
+          const box = document.createElement('div');
+          box.id = `letter-slot-${charGlobalIdx}`;
+          box.dataset.globalIdx = charGlobalIdx;
+          box.className = "w-8 h-9 sm:w-10 sm:h-11 bg-amber-100/90 border-b-4 border-2 border-b-amber-500 border-amber-300 rounded-lg flex items-center justify-center text-amber-950 font-fredoka font-bold text-xl sm:text-2xl shadow-inner transition-all";
+          box.innerText = "";
+          wordGroup.appendChild(box);
+          charGlobalIdx++;
+        }
+
+        container.appendChild(wordGroup);
+
+        if (wIdx < words.length - 1) {
+          const spaceDiv = document.createElement('div');
+          spaceDiv.className = "w-3 sm:w-4 h-9 sm:h-11 flex items-center justify-center text-amber-500/80 font-bold text-lg select-none";
+          spaceDiv.innerText = "•";
+          container.appendChild(spaceDiv);
+        }
+      });
+    }
+
+    function updateLetterSlots(typedVal) {
+      if (!currentTargetWord) return;
+
+      const targetWords = currentTargetWord.split(' ');
+      let totalLetters = 0;
+      targetWords.forEach(w => totalLetters += w.length);
+
+      // Map typed input sequentially to letter slots skipping space gaps
+      const cleanLetters = typedVal.toLowerCase().replace(/[^a-z]/g, '');
+
+      for (let i = 0; i < totalLetters; i++) {
+        const box = document.getElementById(`letter-slot-${i}`);
+        if (!box) continue;
+
+        if (i < cleanLetters.length) {
+          box.innerText = cleanLetters[i];
+          box.className = "w-8 h-9 sm:w-10 sm:h-11 bg-yellow-300 border-b-4 border-2 border-amber-600 rounded-lg flex items-center justify-center text-amber-950 font-fredoka font-bold text-xl sm:text-2xl shadow-md scale-105 transition-all";
+        } else {
+          box.innerText = "";
+          box.className = "w-8 h-9 sm:w-10 sm:h-11 bg-amber-100/90 border-b-4 border-2 border-b-amber-500 border-amber-300 rounded-lg flex items-center justify-center text-amber-950 font-fredoka font-bold text-xl sm:text-2xl shadow-inner transition-all";
+        }
+      }
+    }
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= questionList.length) {
+        showEndSummary();
+        return;
+      }
+
+      isMoving = false;
+      // Position character above typing box for Level 3 so it never obscures keyboard letters
+      const startY = isTypingLevel() ? 62 : 90;
+      setSpritePosition(50, startY);
+
+      const currentQ = questionList[currentQuestionIndex];
+      const randomAnimal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+      document.getElementById('animal-avatar').innerText = randomAnimal;
+      const playerIcon = document.getElementById('player-avatar-icon');
+      if (playerIcon) playerIcon.innerText = randomAnimal;
+
+      document.getElementById('question-prompt-text').innerText = currentPrompt(currentQ);
+      
+      const hintBadge = document.getElementById('action-hint-badge');
+      const hintBtn = document.getElementById('hint-btn');
+
+      hintBadge.innerText = currentQ.actionEmoji;
+
+      const lookBtn = document.getElementById('look-btn');
+      if (lookBtn) lookBtn.classList.toggle('hidden', selectedLevel === 4);
+
+      if (selectedLevel === 1) {
+        // Level 1: Automatically show hint badge, hide tap button
+        hintBadge.classList.remove('hidden');
+        if (hintBtn) hintBtn.classList.add('hidden');
+      } else {
+        // Level 2 & 3: Hide hint badge initially; show tap-to-reveal hint button
+        hintBadge.classList.add('hidden');
+        if (hintBtn) hintBtn.classList.remove('hidden');
+      }
+
+      speakText(currentPrompt(currentQ));
+
+      const choicesContainer = document.getElementById('choices-container');
+      const typingContainer = document.getElementById('typing-container');
+
+      // Shuffle distractors cleanly
+      const allKeys = Object.keys(LOCATION_DATA).filter(k => LOCATION_DATA[k].name !== currentQ.name);
+      for (let i = allKeys.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allKeys[i], allKeys[j]] = [allKeys[j], allKeys[i]];
+      }
+
+      const totalChoices = (selectedLevel === 1) ? 2 : 3;
+      let choiceDistractors = [];
+      if (selectedLevel === 1) {
+        choiceDistractors = [LOCATION_DATA[allKeys[0]]];
+      } else {
+        choiceDistractors = [LOCATION_DATA[allKeys[0]], LOCATION_DATA[allKeys[1]]];
+      }
+
+      // Ensure the correct answer does not land on the same slot consecutively
+      let availableIndices = [];
+      for (let i = 0; i < totalChoices; i++) {
+        if (i !== lastCorrectIndex) {
+          availableIndices.push(i);
+        }
+      }
+      if (availableIndices.length === 0) {
+        availableIndices = Array.from({ length: totalChoices }, (_, i) => i);
+      }
+
+      const targetIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+      lastCorrectIndex = targetIndex;
+
+      currentChoices = new Array(totalChoices);
+      currentChoices[targetIndex] = currentQ;
+      let dIdx = 0;
+      for (let i = 0; i < totalChoices; i++) {
+        if (i !== targetIndex) {
+          currentChoices[i] = choiceDistractors[dIdx++];
+        }
+      }
+
+      window.correctNodeIndex = targetIndex;
+
+      if (isTypingLevel()) {
+        typingContainer.classList.remove('hidden');
+        choicesContainer.classList.remove('hidden');
+
+        const inputEl = document.getElementById('type-answer-input');
+        inputEl.value = "";
+        
+        initLetterSlots(currentQ.name);
+
+        inputEl.oninput = function() {
+          updateLetterSlots(this.value);
+        };
+
+        inputEl.focus();
+
+        renderOnScreenKeyboard(currentChoices, currentQ);
+
+        inputEl.onkeyup = function(e) {
+          if (e.key === 'Enter') {
+            checkTypedAnswer();
+          }
+        };
+      } else {
+        typingContainer.classList.add('hidden');
+        choicesContainer.classList.remove('hidden');
+      }
+
+      if (selectedLevel === 1) {
+        choicesContainer.className = "relative z-20 flex justify-center gap-6 my-auto max-w-2xl mx-auto w-full";
+      } else {
+        choicesContainer.className = "relative z-20 grid grid-cols-3 gap-3 sm:gap-6 my-auto max-w-4xl mx-auto w-full";
+      }
+
+      for (let i = 0; i < 3; i++) {
+        const nodeEl = document.getElementById(`node-${i}`);
+        if (i >= currentChoices.length) {
+          nodeEl.classList.add('hidden');
+          continue;
+        }
+        nodeEl.classList.remove('hidden');
+
+        const choice = currentChoices[i];
+        const iconEl = nodeEl.querySelector('.node-icon');
+        const labelEl = nodeEl.querySelector('.node-label');
+
+        iconEl.innerText = choice.emoji;
+        iconEl.classList.remove('hidden');
+        labelEl.innerText = choice.name;
+        labelEl.classList.remove('hidden');
+
+        if (isTypingLevel()) {
+          nodeEl.onclick = function() {
+            speakText(choice.name);
+          };
+        } else {
+          nodeEl.onclick = function() {
+            handleChoice(i);
+          };
+        }
+
+        nodeEl.className = "destination-node cursor-pointer bg-amber-50 border-4 border-amber-800 rounded-2xl p-2 sm:p-4 text-center shadow-xl flex flex-col items-center justify-center min-h-[100px] sm:min-h-[140px] pulse-guide w-full";
+      }
+
+      setTimeout(() => {
+        drawMapRoutes();
+      }, 50);
+    }
+
+    function getWaypointsForNode(choiceIndex) {
+      const mapBounds = document.getElementById('map-bounds');
+      const nodeEl = document.getElementById(`node-${choiceIndex}`);
+      if (!mapBounds || !nodeEl) return [{ x: 50, y: 88 }, { x: 50, y: 40 }];
+
+      const mapRect = mapBounds.getBoundingClientRect();
+      const nodeRect = nodeEl.getBoundingClientRect();
+
+      const targetX = ((nodeRect.left + nodeRect.width / 2 - mapRect.left) / mapRect.width) * 100;
+      const targetY = ((nodeRect.bottom - mapRect.top - 12) / mapRect.height) * 100;
+
+      const startX = 50;
+      const startY = isTypingLevel() ? 62 : 88;
+
+      return [
+        { x: startX, y: startY },
+        { x: startX + (targetX - startX) * 0.3, y: startY - (startY - targetY) * 0.35 },
+        { x: startX + (targetX - startX) * 0.7, y: startY - (startY - targetY) * 0.7 },
+        { x: targetX, y: targetY }
+      ];
+    }
+
+    function setSpritePosition(xPercent, yPercent) {
+      const sprite = document.getElementById('player-sprite');
+      if (sprite) {
+        sprite.style.left = xPercent + '%';
+        sprite.style.top = yPercent + '%';
+      }
+    }
+
+    function walkAlongPath(choiceIndex, callback) {
+      if (isMoving) return;
+      isMoving = true;
+
+      const sprite = document.getElementById('player-sprite');
+      if (sprite) sprite.classList.add('is-walking');
+
+      const waypoints = getWaypointsForNode(choiceIndex);
+      let step = 0;
+      const totalSteps = 25;
+      let currentWp = 0;
+
+      const interval = setInterval(() => {
+        if (currentWp >= waypoints.length - 1) {
+          clearInterval(interval);
+          if (sprite) sprite.classList.remove('is-walking');
+          isMoving = false;
+          if (callback) callback();
+          return;
+        }
+
+        const startP = waypoints[currentWp];
+        const endP = waypoints[currentWp + 1];
+
+        step++;
+        const progress = step / totalSteps;
+
+        const currentX = startP.x + (endP.x - startP.x) * progress;
+        const currentY = startP.y + (endP.y - startP.y) * progress;
+
+        setSpritePosition(currentX, currentY);
+
+        if (step >= totalSteps) {
+          step = 0;
+          currentWp++;
+        }
+      }, 20);
+    }
+
+    function handleChoice(index) {
+      if (isMoving) return;
+
+      const choice = currentChoices[index];
+      if (!choice) return;
+
+      speakText(choice.name);
+
+      if (isTypingLevel()) {
+        return;
+      }
+
+      if (index === window.correctNodeIndex) {
+        walkAlongPath(index, () => {
+          score++;
+          document.getElementById('star-count').innerText = score;
+          setTimeout(() => {
+            showFeedbackModal(choice);
+          }, 300);
+        });
+      } else {
+        speakText("Try again!");
+        const nodeEl = document.getElementById(`node-${index}`);
+        if (nodeEl) {
+          nodeEl.classList.add('border-red-500');
+          setTimeout(() => {
+            nodeEl.classList.remove('border-red-500');
+          }, 800);
+        }
+      }
+    }
+
+    function showFeedbackModal(qData) {
+      const modal = document.getElementById('screen-feedback');
+      if (!modal) return;
+
+      document.getElementById('feedback-praise').innerText = `Great job, ${studentName}!`;
+      document.getElementById('feedback-emoji').innerText = qData.emoji;
+      document.getElementById('feedback-word').innerText = praiseSentence(qData);
+
+      modal.classList.remove('hidden');
+
+      speakText(`Great job, ${studentName}! ${praiseSentence(qData)}`);
+    }
+
+    function nextQuestion() {
+      const feedbackModal = document.getElementById('screen-feedback');
+      if (feedbackModal) feedbackModal.classList.add('hidden');
+
+      currentQuestionIndex++;
+
+      if ((score === 4 || score === 8) && lastNewsScore !== score) {
+        lastNewsScore = score;
+        showUpgradeNews(score);
+        return;
+      }
+
+      if (currentQuestionIndex >= questionList.length) {
+        showEndSummary();
+      } else {
+        loadQuestion();
+      }
+    }
+
+    function showUpgradeNews(starsCount) {
+      const newsModal = document.getElementById('screen-upgrade-news');
+      if (!newsModal) return;
+
+      const badgeTitle = starsCount === 4 ? "Home Helper Badge 🎖️" : "Super Helper Badge 🏆";
+      const newsTitle = starsCount === 4 ? "Level Up! 升級新聞" : "Super Star! 優秀探索者";
+
+      document.getElementById('news-title').innerText = newsTitle;
+      document.getElementById('news-body-name').innerText = `Great job, ${studentName}!`;
+      document.getElementById('news-body-desc').innerText = `You answered ${starsCount} questions correctly!`;
+      document.getElementById('news-badge-title').innerText = badgeTitle;
+
+      newsModal.classList.remove('hidden');
+
+      speakText(`Breaking news! Great job ${studentName}! You earned the ${badgeTitle.replace(/[\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEF6]/g, '')}!`);
+    }
+
+    function closeUpgradeNews() {
+      const newsModal = document.getElementById('screen-upgrade-news');
+      if (newsModal) newsModal.classList.add('hidden');
+
+      if (currentQuestionIndex >= questionList.length) {
+        showEndSummary();
+      } else {
+        loadQuestion();
+      }
+    }
+
+    let nextPromotedLevel = 2;
+
+    function showEndSummary() {
+      const total = questionList.length;
+      const percentage = Math.round((score / total) * 100);
+
+      // Level 1 and 2 promotion check (80% or higher)
+      if (selectedLevel < 4 && percentage >= 80) {
+        showPromotionModal(selectedLevel + 1, percentage);
+        return;
+      }
+
+      const summaryModal = document.getElementById('screen-summary');
+      if (!summaryModal) return;
+
+      document.getElementById('certificate-name').innerText = studentName;
+      document.getElementById('certificate-percentage').innerText = `Score: ${score}/${total} (${percentage}%)`;
+      document.getElementById('certificate-msg').innerText = `You finished Level ${selectedLevel} with ${percentage}% accuracy! Magnificent job!`;
+
+      // Assign custom prize based on accuracy
+      const prizeTitleEl = document.getElementById('prize-title');
+      if (percentage >= 90) {
+        prizeTitleEl.innerText = "Home Helper Gold Trophy 🏆✨";
+      } else if (percentage >= 70) {
+        prizeTitleEl.innerText = "Home Helper Silver Star Medal 🏅⭐";
+      } else {
+        prizeTitleEl.innerText = "Home Helper Badge 🎖️👍";
+      }
+
+      summaryModal.classList.remove('hidden');
+
+      // Trigger celebratory fireworks animation and victory sound effects
+      triggerFireworks();
+      playVictoryChime();
+
+      speakText(`Congratulations ${studentName}! You achieved ${percentage} percent accuracy! You won the ${prizeTitleEl.innerText}!`);
+    }
+
+    function showPromotionModal(nextLvl, percentage) {
+      nextPromotedLevel = nextLvl;
+      const promoModal = document.getElementById('screen-promotion');
+      if (!promoModal) return;
+
+      document.getElementById('promo-banner-title').innerText = `Promoted! 升級 Level ${nextLvl}`;
+      document.getElementById('promo-student-name').innerText = studentName;
+      document.getElementById('promo-score-text').innerText = `Score: ${score}/${questionList.length} (${percentage}%)`;
+      document.getElementById('promo-desc-text').innerHTML = `You achieved over 80% accuracy! You are automatically promoted to <span class="text-amber-700 font-extrabold underline">Level ${nextLvl}</span>!`;
+      document.getElementById('promo-btn-text').innerText = `Start Level ${nextLvl} Now`;
+
+      promoModal.classList.remove('hidden');
+      triggerFireworks();
+      playVictoryChime();
+
+      speakText(`Congratulations ${studentName}! You scored ${percentage} percent! You are promoted to Level ${nextLvl}!`);
+    }
+
+    function startPromotedLevel() {
+      stopFireworks();
+      const promoModal = document.getElementById('screen-promotion');
+      if (promoModal) promoModal.classList.add('hidden');
+      selectLevel(nextPromotedLevel);
+    }
+
+    function restartGame() {
+      stopFireworks();
+      const summaryModal = document.getElementById('screen-summary');
+      if (summaryModal) summaryModal.classList.add('hidden');
+      document.getElementById('screen-difficulty').classList.remove('hidden');
+    }
+
+    function checkTypedAnswer() {
+      if (isMoving) return;
+      
+      const rawInput = document.getElementById('type-answer-input').value.trim().toLowerCase();
+      const cleanInput = rawInput.replace(/\s+/g, ' ');
+      const currentQ = questionList[currentQuestionIndex];
+      const cleanTarget = currentQ.name.toLowerCase().trim().replace(/\s+/g, ' ');
+
+      // Allow answer matching both with and without internal space for SEN flexibility
+      if (cleanInput === cleanTarget || cleanInput.replace(/ /g, '') === cleanTarget.replace(/ /g, '')) {
+        const routeColumn = (window.correctNodeIndex !== undefined && window.correctNodeIndex !== -1) ? window.correctNodeIndex : 1;
+        
+        walkAlongPath(routeColumn, () => {
+          score++;
+          document.getElementById('star-count').innerText = score;
+
+          setTimeout(() => {
+            showFeedbackModal(currentQ);
+          }, 400);
+        });
+      } else {
+        speakText("Hmm, check the spelling and try again!");
+        const inputEl = document.getElementById('type-answer-input');
+        inputEl.classList.add('border-red-500', 'bg-red-50');
+        setTimeout(() => {
+          inputEl.classList.remove('border-red-500', 'bg-red-50');
+        }, 1000);
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      const startY = isTypingLevel() ? 62 : 90;
+      setSpritePosition(50, startY);
+      drawMapRoutes();
+    });
+
+    window.onload = function() {
+      const startY = isTypingLevel() ? 62 : 90;
+      setSpritePosition(50, startY);
+      setTimeout(() => {
+        speakText("What is your name?");
+      }, 500);
+    };
+  </script>
+</body>
+</html>
